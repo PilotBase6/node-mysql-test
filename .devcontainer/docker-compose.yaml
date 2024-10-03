@@ -1,0 +1,62 @@
+services:
+    node-service-dev:
+        container_name: node-service-dev
+        build:
+            context: .
+            dockerfile: Dockerfile
+        volumes:
+            - ../..:/workspaces:cached
+        command: sleep infinity
+        ports:
+            - "5000:5000"
+        networks:
+            - node-dev
+
+    node-service:
+        container_name: node-service
+        build:
+            context: ..
+            dockerfile: .devcontainer/Dockerfile.app
+        volumes:
+            - ../..:/workspaces:cached
+        ports:
+            - "8080:8080"
+        networks:
+            - node-dev
+
+    node-mysql:
+        container_name: node-mysql
+        image: mysql:8.0
+        restart: unless-stopped
+        volumes:
+        - db_data:/var/lib/mysql
+        environment:
+        MYSQL_ROOT_PASSWORD: testnode
+        MYSQL_DATABASE: testdb
+        MYSQL_USER: testnode
+        MYSQL_PASSWORD: testnode
+        ports:
+        - "33060:3306"
+        networks:
+        - node-dev
+
+    phpmyadmin:
+        container_name: phpmyadmin
+        image: phpmyadmin/phpmyadmin
+        restart: unless-stopped
+        environment:
+        PMA_HOST: node-mysql
+        MYSQL_ROOT_PASSWORD: testnode
+        ports:
+        - "8081:80"
+        depends_on:
+        - node-mysql
+        networks:
+        - node-dev
+            
+volumes:
+    db_data:
+
+networks:
+    node-dev:
+        name: node-dev
