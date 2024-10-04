@@ -1,75 +1,70 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+## Descripción
+Prueba técnica para Treda Solutions donde se crea una aplicación CRUD utilizando Node.js 22, MySQL, Sequelize, Docker. 
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+El proyecto está diseñado para gestionar usuarios. Contiene dos vistas principales:
+1. **Vista de Autenticación**: Permite registrar nuevos usuarios y autenticar las credenciales de los usuarios existentes.
+2. **Vista de Usuarios**: Permite obtener la lista de usuarios, actualizar y eliminar.
+3. **Vista de Sedes**: Migración inicial con 5 ciudades principales.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Requisitos
 
-## Description
+1. Docker
+2. VSC
+3. Extensión Remote Development
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Instalación
 
-## Installation
+1. Clonar el repositorio.
+2. Se debe abrir el dev container Ctrl + Shift + p => Dev Containers: Reopen Container
+3. Crear y Ejecutar las migraciones (Las instrucción se encuentran en src/readme.md)
+4. En este punto puede probar la aplicación en un servicio consistente con los ambientes de producción
+    
+    ```bash
+    http://localhost:8080/api/swagger
+    ```
+   
+   O puede ejecutar la aplicación en un ambiente de desarrollo accediendo a src/Api
 
+    ```bash
+    cd src/Api
+    http://localhost:5500/api/swagger
+    ```
+
+5. Para acceder a PhpMyAdmin se puede desde:
+
+    ```bash
+    http://localhost:8081
+    ```
+
+## DockerHub Container Registry
+
+    
 ```bash
-$ pnpm install
+docker pull pilotbase6/node-mysql-test:latest
 ```
 
-## Running the app
+Recordatorio: Si quieres ejecutar la imagen del proyecto recuerda tener un servicio de MySQL corriendo en el mismo Network (Cambiar el nombre del servicio MySQL si se quiere ejecutar con un servicio diferente al devcontainer).
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+  node-mysql:
+    container_name: node-mysql
+    image: mysql:8.0
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: testnode
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testnode
+      MYSQL_PASSWORD: testnode
+    ports:
+      - "33060:3306"
+    networks:
+      - node-dev
 ```
 
-## Test
+En la aplicación hay dos archivos que son importantes para mi solución:
 
-```bash
-# unit tests
-$ pnpm run test
+Repository.ts: Contiene una clase abstracta que contiene los métodos CRUD reutilizables, al tener un tipado generico permite que cualquier módelo lo utilice facilitando la creación de nuevos servicios y manteniendo una consistencia.
 
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the
-amazing backers. If you'd like to join them, please
-[read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
--   Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
--   Website - [https://nestjs.com](https://nestjs.com/)
--   Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+IService.ts Contiene un conjunto de interfaces que mantienen una consistencia de la manera en que se deben desarrollar los diferentes servicios, esto ayuda a mantener un orden tanto en el desarrollo del código como en las respuestas de las APIs.
