@@ -1,12 +1,10 @@
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import type { IUser } from "src/entities/user.schema";
+import type { UserRepository } from "src/repositories/user.repository";
 
 export class UserValidations {
-    public constructor(@InjectModel("user") private readonly userModel: Model<IUser>) {}
+    public constructor(private readonly userModel: UserRepository) {}
 
     public EmailExistsAsync = async (email: string): Promise<boolean> => {
-        const user = await this.userModel.findOne({ email });
+        const user = await this.userModel.GetByEmail(email);
         return !!user;
     };
 

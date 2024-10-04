@@ -10,7 +10,8 @@ export interface IUpdateUserService
 export interface IUpdateUserServiceRequest extends IServiceRequest {
     Name: string;
     Email: string;
-    Role: number;
+    Password: string;
+    Sede: string;
 }
 
 export interface IUpdateUserServiceResponse

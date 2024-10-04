@@ -1,8 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ApiProperty } from "@nestjs/swagger";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
 import type {
     ILoginService,
     ILoginServiceRequest,
@@ -10,12 +8,13 @@ import type {
     ILoginServiceDataResponseData,
 } from "src/core/auth/ILoginService";
 import type { IUser } from "src/entities/user.schema";
+import { UserRepository } from "src/repositories/user.repository";
 import { UserValidations } from "src/services/users/UserValidations";
 
 @Injectable()
 export class LoginService implements ILoginService {
     public constructor(
-        @InjectModel("user") private readonly userModel: Model<IUser>,
+        private readonly userModel: UserRepository,
         private readonly userValidations: UserValidations,
         private readonly jwtService: JwtService,
     ) {}
@@ -30,7 +29,7 @@ export class LoginService implements ILoginService {
             });
         }
 
-        const user = await this.userModel.findOne({ email: request.Email });
+        const user = await this.userModel.GetByEmail(request.Email);
 
         if (user!.password !== request.Password) {
             throw new UnauthorizedException("Invalid password");

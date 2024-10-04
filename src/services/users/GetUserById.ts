@@ -1,7 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { ApiProperty } from "@nestjs/swagger";
-import { Model } from "mongoose";
 import type {
     IGetUserByIdService,
     IGetUserByIdServiceRequest,
@@ -9,13 +7,13 @@ import type {
     IGetUserByIdServiceDataResponseData,
     IUserInfo,
 } from "src/core/users/IGetUserByIdService";
-import type { IUser } from "src/entities/user.schema";
+import { UserRepository } from "src/repositories/user.repository";
 import { UserValidations } from "src/services/users/UserValidations";
 
 @Injectable()
 export class GetUserByIdService implements IGetUserByIdService {
     public constructor(
-        @InjectModel("user") private readonly userModel: Model<IUser>,
+        private readonly userModel: UserRepository,
         private readonly userValidations: UserValidations,
     ) {}
 
@@ -31,15 +29,15 @@ export class GetUserByIdService implements IGetUserByIdService {
             });
         }
 
-        const user = await this.userModel.findById(request.Id);
+        const user = await this.userModel.GetById(request.Id);
 
         const userInfo: IUserInfo[] = [
             {
-                Id: user!.id.toString(),
-                Name: user!.name,
-                Email: user!.email,
-                Role: user!.role,
-                CreatedOn: user!.createdOn,
+                Id: user.id.toString(),
+                Name: user.name,
+                Email: user.email,
+                CreatedAt: user?.createdAt,
+                UpdatedAt: user?.updatedAt,
             },
         ];
 
@@ -54,7 +52,7 @@ export class GetUserByIdService implements IGetUserByIdService {
     public ValidateAsync = async (request: IGetUserByIdServiceRequest): Promise<string[]> => {
         const errors: string[] = [];
 
-        const user = await this.userModel.findById(request.Id);
+        const user = await this.userModel.GetById(request.Id);
 
         if (!user) {
             errors.push("User not found");

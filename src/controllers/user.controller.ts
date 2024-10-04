@@ -1,4 +1,12 @@
-import { Get, Controller, BadRequestException, UseGuards, Post, Param, Body } from "@nestjs/common";
+import {
+    Get,
+    Controller,
+    BadRequestException,
+    UseGuards,
+    Param,
+    Body,
+    Patch,
+} from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiBody, ApiBearerAuth } from "@nestjs/swagger";
 
 import { AuthGuard } from "src/services/auth/auth.guard";
@@ -50,7 +58,7 @@ export class UserControllers {
     }
 
     @UseGuards(AuthGuard)
-    @Post("updateUser")
+    @Patch("updateUser")
     @ApiBearerAuth()
     @ApiBody({ type: UpdateUserServiceRequest })
     public async UpdateUserAsync(

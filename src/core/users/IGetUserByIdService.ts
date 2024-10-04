@@ -22,6 +22,6 @@ export interface IUserInfo {
     Id: string;
     Name: string;
     Email: string;
-    Role: number;
-    CreatedOn: Date;
+    CreatedAt?: Date,
+    UpdatedAt?: Date,
 }

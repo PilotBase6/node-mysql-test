@@ -1,26 +1,16 @@
-import {
-    Table,
-    Column,
-    Model,
-    PrimaryKey,
-    DataType,
-    BelongsTo,
-    ForeignKey,
-} from "sequelize-typescript";
-import { Sede } from "./sede.schema";
+import { Table, Column, Model, PrimaryKey, DataType, HasMany } from "sequelize-typescript";
+import { User } from "./user.schema";
 
-export interface IUser {
+export interface ISede {
     id: string;
     name: string;
-    email: string;
-    password: string;
-    sedeId: string;
+    location: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
 @Table
-export class User extends Model<IUser> {
+export class Sede extends Model<ISede> {
     @PrimaryKey
     @Column({
         type: DataType.UUID,
@@ -39,23 +29,7 @@ export class User extends Model<IUser> {
         type: DataType.STRING,
         allowNull: false,
     })
-    public email!: string;
-
-    @Column({
-        type: DataType.STRING,
-        allowNull: false,
-    })
-    public password!: string;
-
-    @ForeignKey(() => Sede)
-    @Column({
-        type: DataType.UUID,
-        allowNull: false,
-    })
-    public sedeId!: string;
-
-    @BelongsTo(() => Sede)
-    public sede!: Sede;
+    public location!: string;
 
     @Column({
         type: DataType.DATE,
@@ -68,4 +42,7 @@ export class User extends Model<IUser> {
         allowNull: true,
     })
     public override updatedAt?: Date;
+
+    @HasMany(() => User)
+    public users!: User[];
 }

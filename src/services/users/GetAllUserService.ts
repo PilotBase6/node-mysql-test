@@ -1,6 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
 import type {
     IGetAllUserService,
     IGetAllUserServiceRequest,
@@ -8,14 +6,14 @@ import type {
     IGetAllUserServiceDataResponseData,
     IUsersInfo,
 } from "src/core/users/IGetAllUserService";
-import type { IUser } from "src/entities/user.schema";
 import { UserValidations } from "./UserValidations";
+import { UserRepository } from "src/repositories/user.repository";
 
 @Injectable()
 export class GetAllUserService implements IGetAllUserService {
     public constructor(
-        @InjectModel("user") private readonly userModel: Model<IUser>,
         private readonly userValidations: UserValidations,
+        private readonly userModel: UserRepository
     ) {}
 
     public ExecuteAsync = async (): Promise<IGetAllUserServiceResponse> => {
@@ -28,15 +26,15 @@ export class GetAllUserService implements IGetAllUserService {
             });
         }
 
-        const users = await this.userModel.find();
+        const users = await this.userModel.GetAll();
 
         const userInfo: IUsersInfo[] = users.map((user) => {
             return {
                 Id: user.id.toString(),
                 Name: user.name,
                 Email: user.email,
-                Role: user.role,
-                CreatedOn: user.createdOn,
+                CreatedAt: user.createdAt,
+                UpdatedAt: user?.updatedAt,
             };
         });
 
@@ -51,7 +49,7 @@ export class GetAllUserService implements IGetAllUserService {
     public ValidateAsync = async (): Promise<string[]> => {
         const errors: string[] = [];
 
-        const users = await this.userModel.find();
+        const users = await this.userModel.GetAll();
 
         if (users.length === 0) {
             errors.push("No users found");

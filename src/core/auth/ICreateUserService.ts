@@ -11,7 +11,7 @@ export interface ICreateUserServiceRequest extends IServiceRequest {
     Name: string;
     Email: string;
     Password: string;
-    Role?: number;
+    Sede: string;
 }
 
 export interface ICreateUserServiceResponse

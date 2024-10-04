@@ -1,21 +1,23 @@
 import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { ApiProperty } from "@nestjs/swagger";
-import { Model } from "mongoose";
 import type {
     ICreateUserService,
     ICreateUserServiceRequest,
     ICreateUserServiceResponse,
     ICreateUserServiceDataResponseData,
 } from "src/core/auth/ICreateUserService";
-import type { IUser } from "src/entities/user.schema";
+import { v4 as uuidv4 } from "uuid";
+import { UserRepository } from "src/repositories/user.repository";
 import { UserValidations } from "src/services/users/UserValidations";
+import { User } from "src/entities/user.schema";
+import { SedeRepository } from "src/repositories/sede.repository";
 
 @Injectable()
 export class CreateUserService implements ICreateUserService {
     public constructor(
-        @InjectModel("user") private readonly userModel: Model<IUser>,
         private readonly userValidations: UserValidations,
+        private readonly userModel: UserRepository,
+        private readonly sedeRepository: SedeRepository,
     ) {}
 
     public ExecuteAsync = async (
@@ -29,22 +31,21 @@ export class CreateUserService implements ICreateUserService {
                 Success: false,
             });
         }
-        let role;
-        if (request.Role) {
-            role = request.Role;
-        } else {
-            role = 1;
-        }
 
-        const user = new this.userModel({
+        const id = uuidv4();
+        const sede = await this.sedeRepository.GetByName(request.Sede.toLowerCase());
+
+        const userInstance = new User({
+            id: id,
             name: request.Name,
             email: request.Email,
             password: request.Password,
-            role: role,
-            createdOn: new Date(),
+            sedeId: sede.id,
+            createdAt: new Date(),
+            updatedAt: new Date(),
         });
 
-        await user.save();
+        await this.userModel.Create(userInstance);
 
         return new CreateUserServiceResponse({
             Message: "User created",
@@ -59,7 +60,7 @@ export class CreateUserService implements ICreateUserService {
         const emailErrors: string[] = await this.userValidations.EmailIsValidAsync(request.Email);
         const passwordErrors: string[] = this.userValidations.PasswordIsValid(request.Password);
 
-        if (request.Email && (await this.userValidations.EmailExistsAsync(request.Email))) {
+        if (request.Email && emailErrors.length > 0) {
             errors.push("Email already exists");
         }
 
@@ -86,8 +87,8 @@ export class CreateUserServiceRequest implements ICreateUserServiceRequest {
     public Email!: string;
     @ApiProperty()
     public Password!: string;
-    @ApiProperty({ required: false })
-    public Role?: number;
+    @ApiProperty()
+    public Sede!: string;
 }
 
 export class CreateUserServiceDataResponseData implements ICreateUserServiceDataResponseData {

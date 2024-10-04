@@ -20,6 +20,6 @@ export interface IUsersInfo {
     Id: string;
     Name: string;
     Email: string;
-    Role: number;
-    CreatedOn: Date;
+    CreatedOn?: Date;
+    UpdatedOn?: Date;
 }
